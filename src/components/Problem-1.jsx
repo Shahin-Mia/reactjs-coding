@@ -4,6 +4,7 @@ const Problem1 = () => {
   const [show, setShow] = useState("all");
   const [data, setData] = useState([]);
   const [formData, setFormData] = useState({});
+  const [filterdData, setFilteredData] = useState([]);
 
   const handleInputBlur = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,22 +16,52 @@ const Problem1 = () => {
   };
 
   const handleClick = (val) => {
+    let sortedData = [];
+    if (val === "all") {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].status && data[i].status.toLowerCase() === "active") {
+          sortedData.unshift(data[i]);
+        } else if (
+          data[i].status &&
+          data[i].status.toLowerCase() === "completed"
+        ) {
+          let placed = false;
+
+          for (let j = 0; j < sortedData.length; j++) {
+            if (
+              sortedData[j].status &&
+              sortedData[j].status.toLowerCase() === "completed"
+            ) {
+              sortedData.splice(j, 0, data[i]);
+              placed = true;
+              break;
+            }
+          }
+          if (!placed) {
+            sortedData.push(data[i]);
+          }
+        } else {
+          sortedData.push(data[i]);
+        }
+      }
+      setFilteredData(sortedData);
+    } else if (val === "active") {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].status && data[i].status.toLowerCase() === "active") {
+          sortedData.unshift(data[i]);
+        }
+      }
+      setFilteredData(sortedData);
+    } else {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].status && data[i].status.toLowerCase() === "completed") {
+          sortedData.unshift(data[i]);
+        }
+      }
+      setFilteredData(sortedData);
+    }
     setShow(val);
   };
-
-  const sortOrder = { active: 1, completed: 2 };
-
-  const sortedData = data.slice().sort((a, b) => {
-    if (sortOrder[a.status.toLowerCase()] < sortOrder[b.status.toLowerCase()]) {
-      return -1;
-    }
-    if (sortOrder[a.status.toLowerCase()] > sortOrder[b.status.toLowerCase()]) {
-      return 1;
-    }
-    return 1;
-  });
-
-  console.log(data);
 
   return (
     <div className="container">
@@ -106,12 +137,19 @@ const Problem1 = () => {
               </tr>
             </thead>
             <tbody>
-              {sortedData.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.name}</td>
-                  <td>{item.status}</td>
-                </tr>
-              ))}
+              {filterdData.length > 0
+                ? filterdData.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.name}</td>
+                      <td>{item.status}</td>
+                    </tr>
+                  ))
+                : data.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.name}</td>
+                      <td>{item.status}</td>
+                    </tr>
+                  ))}
             </tbody>
           </table>
         </div>
